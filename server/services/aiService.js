@@ -70,12 +70,27 @@ async function analyzeContent(bookText, videoTranscript) {
 
   const relevancePercentage = (totalSimilarity / videoEmbeddings.length) * 100;
 
-  // Gemini summary
-  const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-  const prompt = `Based on the following mismatched parts from a video transcript when compared to a book, provide a brief summary of the differences: ${mismatchedParts.join(', ')}`;
+  let summary;
 
-  const result = await model.generateContent(prompt);
-  const summary = result.response.candidates[0].content.parts[0].text;
+  if (mismatchedParts.length === 0) {
+    summary = "The video transcript and the book content are highly relevant to each other, with no significant differences found.";
+  } else {
+    try {
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+      const prompt = `Based on the following mismatched parts from a video transcript when compared to a book, provide a brief summary of the differences: ${mismatchedParts.join(', ')}`;
+
+      const result = await model.generateContent(prompt);
+      
+      if (result.response.candidates && result.response.candidates.length > 0) {
+        summary = result.response.candidates[0].content.parts[0].text;
+      } else {
+        summary = "Could not generate a summary for the provided content.";
+      }
+    } catch (error) {
+      console.error('Error generating summary:', error);
+      summary = "An error occurred while generating the summary.";
+    }
+  }
 
   return {
     relevancePercentage: relevancePercentage.toFixed(2),
