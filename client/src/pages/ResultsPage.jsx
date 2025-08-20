@@ -11,7 +11,7 @@ const ResultsPage = () => {
   useEffect(() => {
     const fetchResult = async () => {
       try {
-        const res = await axios.get(`http://localhost:5001/api/result/${id}`);
+        const res = await axios.get(`http://localhost:5000/api/result/${id}`);
         setResult(res.data);
       } catch (error) {
         console.error('Failed to fetch results:', error);

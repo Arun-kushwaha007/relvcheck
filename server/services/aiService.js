@@ -13,10 +13,16 @@ function chunkText(text, chunkSize = 500) {
 
 async function getEmbeddings(textChunks) {
   const model = genAI.getGenerativeModel({ model: "embedding-001" });
-  const result = await model.batchEmbedChunks({
-    requests: textChunks.map(chunk => ({ text: chunk }))
-  });
-  return result.embeddings.map(e => e.values);
+  const embeddings = [];
+
+  for (const chunk of textChunks) {
+    const result = await model.embedContent({
+      content: { parts: [{ text: chunk }] }
+    });
+    embeddings.push(result.embedding.values);
+  }
+
+  return embeddings;
 }
 
 function cosineSimilarity(vecA, vecB) {
@@ -50,7 +56,7 @@ async function analyzeContent(bookText, videoTranscript) {
       }
     });
 
-    if (maxSimilarity > 0.5) { // Similarity threshold
+    if (maxSimilarity > 0.5) {
       totalSimilarity += maxSimilarity;
       sectionSimilarities.push({
         videoSection: videoChunks[i],
@@ -64,11 +70,12 @@ async function analyzeContent(bookText, videoTranscript) {
 
   const relevancePercentage = (totalSimilarity / videoEmbeddings.length) * 100;
 
-  // Optional: Generate a summary of differences with Gemini Pro
+  // Gemini summary
   const model = genAI.getGenerativeModel({ model: "gemini-pro" });
   const prompt = `Based on the following mismatched parts from a video transcript when compared to a book, provide a brief summary of the differences: ${mismatchedParts.join(', ')}`;
+
   const result = await model.generateContent(prompt);
-  const summary = await result.response.text();
+  const summary = result.response.candidates[0].content.parts[0].text;
 
   return {
     relevancePercentage: relevancePercentage.toFixed(2),

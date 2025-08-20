@@ -18,9 +18,9 @@ const HomePage = () => {
     try {
       const pdfFormData = new FormData();
       pdfFormData.append('pdf', pdfFile);
-      await axios.post('http://localhost:5001/api/upload-pdf', pdfFormData);
+      await axios.post('http://localhost:5000/api/upload-pdf', pdfFormData);
 
-      const res = await axios.post('http://localhost:5001/api/analyze-video', { youtubeUrl });
+      const res = await axios.post('http://localhost:5000/api/analyze-video', { youtubeUrl });
       navigate(`/results/${res.data._id}`);
     } catch (error) {
       console.error('Analysis failed:', error);
@@ -30,35 +30,65 @@ const HomePage = () => {
     }
   };
 
+  // ...existing code...
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Video-Book Relevancy Analyzer</h1>
-        <div className="space-y-4">
-          <input
-            type="file"
-            accept=".pdf"
-            onChange={(e) => setPdfFile(e.target.files[0])}
-            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100">
+      <div className="bg-white/90 backdrop-blur-md p-10 rounded-3xl shadow-2xl w-full max-w-lg border border-gray-200">
+        <div className="flex flex-col items-center mb-8">
+          <img
+            src="https://img.icons8.com/color/96/000000/video.png"
+            alt="Analyzer Icon"
+            className="mb-4"
           />
-        <input
-          type="text"
-          placeholder="YouTube Video URL"
-          value={youtubeUrl}
-          onChange={(e) => setYoutubeUrl(e.target.value)}
-          className="w-full px-4 py-2 border rounded-lg"
-        />
+          <h1 className="text-3xl font-extrabold text-gray-800 mb-2 text-center drop-shadow">
+            Video-Book Relevancy Analyzer
+          </h1>
+          <p className="text-gray-500 text-center text-base">
+            Compare your PDF book with a YouTube video for content relevancy.
+          </p>
+        </div>
+        <div className="space-y-6">
+          <label className="block">
+            <span className="text-gray-700 font-medium">Upload PDF Book</span>
+            <input
+              type="file"
+              accept=".pdf"
+              onChange={(e) => setPdfFile(e.target.files[0])}
+              className="mt-2 block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-6 file:rounded-lg file:border-0 file:text-base file:font-semibold file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200 transition-all"
+            />
+          </label>
+          <label className="block">
+            <span className="text-gray-700 font-medium">YouTube Video URL</span>
+            <input
+              type="text"
+              placeholder="Paste YouTube video link here"
+              value={youtubeUrl}
+              onChange={(e) => setYoutubeUrl(e.target.value)}
+              className="mt-2 w-full px-4 py-3 border-2 border-purple-200 rounded-lg focus:outline-none focus:border-purple-400 transition-all bg-purple-50 text-gray-700"
+            />
+          </label>
           <button
             onClick={handleAnalysis}
             disabled={loading}
-            className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 disabled:bg-blue-300"
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 text-white font-bold text-lg shadow-lg hover:from-purple-600 hover:to-blue-600 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading ? 'Analyzing...' : 'Analyze'}
+            {loading ? (
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                </svg>
+                Analyzing...
+              </span>
+            ) : (
+              'Analyze'
+            )}
           </button>
         </div>
       </div>
     </div>
   );
+  // ...existing code...
 };
 
 export default HomePage;
